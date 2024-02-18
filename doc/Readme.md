@@ -1,0 +1,15 @@
+## 计划使用技术栈
+- 实现缓存
+  - redisson
+  - 防止 雪崩、击穿、穿透(使用 布隆过滤器),都有
+- 缓存一致性
+  - rocketMq + canal
+- 搜索
+  - ES
+- 日志与链路追踪
+  - ELK
+  - Skywalking
+- 分布式事务
+  - Seata
+- 分布式限流熔断
+  - Alibaba Sentinel

@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: service-payment
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      discovery:
+        server-addr: jfl.kiroe.cn:8848
+      config:
+        server-addr: jfl.kiroe.cn:8848
+        file-extension: yaml
+        shared-configs:
+          - data-id: common.yaml
+alipay:
+  config:
+    appId: 9021000134613169
+    alipayUrl: https://openapi-sandbox.dl.alipaydev.com/gateway.do
+    appPrivateKey: MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDG6UqzdSViOpf3djaat7hLWJzSdZFf3VzQg6OOot4yHKsXrfXmkZVCFWemLG0fDpJ6r8loMOmvQoYwAM58Rut1GAqI4+EC3AUa2JBGNJAKSq85gKkUVDnuNH1PMAmLe7E0Vg4CXntojIPwfEyiW2LD406WEQEmXeHGodkKDbswB/zEWIYJ4QjCKow0OZ5lxpRpOVwFVg9Z0+wWJxXv6LfUNL8BuKyVgAaQrmn1CrrBkJFGsjmjdnVgub9d0MFADTrYYGyEySfrJkFCDLKzSNzNiYbXHwnOesWNW5yFHr2dHSiZoEcTLSKFwlnY33zsYzK8brrd0tdfINm2DKAsRnrrAgMBAAECggEAX3su+5P5HPzpY8VgEsar9acUqEX9QZo96m22PkraBA4U5un/hu1NS4qA1ZivzN+u2qu1L4mDMzjotvQ8KhXVAsFGlU1l/nxlCuz33Gtw1S/iiuTCxNplcH3LxQ5XFpiKiIfic6qs7JO+5dqU4r6hW0yqtYh2F9erADFCwPu0ZiomKbDmS8JAOzF7okQlTlw0xzUI8eFZp0ocD8NI5OUWexT6Fv7Gao0JbxycnuZ4aRCNRVs//IkhLqn1TH61lNBXA/honDAedQB6idxEj6hiF3rG0NGGqLKK5oUDqVINWlmV4To3kkacwlL7H3VWXYn0Ji402fiuGnCKQJ7DG6HhGQKBgQDyprvCKwR/FTofr+9LognXqEXg/2EB+pKm6DbErTUaxHyllN9W/HTnPgV+/nza3QafP+5wLP4eSL3G45TmLHjx82oiqU7Z7e0pYIVQHAP6J4xuSBMO4b7/uAjHltEZTkvKmrnk6ri9AhUUp1wxJ+shyHA1BMcZyJrg6wPT7Jyq1wKBgQDR2pD9eq73quQMTNOPEWwqgo2+TBvfTNEwRFSdp5dn1xxFf5+aYdFzlAETCVfWqyL+hLKbEnuUzXejPaZFLZZrDavAcP3cDdDpYU6AAkMrnGuBEJgfIpguq09Y75djH2R+H9cNyrEo11M5cG3KL4pnGKzvbF083/4FFnH2QoDiDQKBgQDZ/SgYW4UClhNNfETB8aRd9XIxm7uOh4lQILVzIxfeID7Kkl/CSbLMO0+8sut/w6i7UDfo1sLEehzjnHib/7/3vPHQicGozrKMxYV+XmzEQttKB733VJ6+JJrek4Lt9QTp0u7F1Ih6ZHCDyYZtMqtuAh+rwcsMQsfA3+DkdmCYqQKBgQCs2cfFUbEehN8UFo/HbwVWOnTAAvaORjqj9BRySyGVwYQi5o0y31FjTsxXvsFgK1RGqkxnGKE8HsVlaxkyL+uOwBLxDuC6yZKDOMgs/jAPkualx2JVeuw4vJg93BMo7SmcDWPYk1S7HCkLzcRQ3jm004lWKD7gLmuQCz3RJlP8XQKBgB93AskVk8Ibt8TqBYsK0exzhaZCRWGIXnqv/8Sa7DOjcXnMCN4eTikkI+gMUwTnZzXMhxchy+05VAXuPU3I5eSyxiGYZg+YAWSyFUjfYIV9rxuFl3ckFLuhBuGTaHIxff4BhEEtOU95/CP7MD3IU3Q7RdNwBc12Irl+6sIAAd7i
+    alipayPublicKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxulKs3UlYjqX93Y2mre4S1ic0nWRX91c0IOjjqLeMhyrF6315pGVQhVnpixtHw6Seq/JaDDpr0KGMADOfEbrdRgKiOPhAtwFGtiQRjSQCkqvOYCpFFQ57jR9TzAJi3uxNFYOAl57aIyD8HxMoltiw+NOlhEBJl3hxqHZCg27MAf8xFiGCeEIwiqMNDmeZcaUaTlcBVYPWdPsFicV7+i31DS/AbislYAGkK5p9Qq6wZCRRrI5o3Z1YLm/XdDBQA062GBshMkn6yZBQgyys0jczYmG1x8JznrFjVuchR69nR0omaBHEy0ihcJZ2N987GMyvG663dLXXyDZtgygLEZ66wIDAQAB
+    returnPaymentUrl: http://localhost:8205/api/payment/alipay/alipay/callback/return
+    notifyPaymentUrl: ali.kiroe.cn:8205/api/payment/alipay/callback/notify

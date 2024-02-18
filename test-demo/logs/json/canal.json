@@ -1,0 +1,36 @@
+{
+  "data": [
+    {
+      "id": "2",
+      "groupName": "非常美丽组",
+      "classId": "123"
+    }
+  ],
+  "database": "test_55th",
+  "es": 1706793723000,
+  "gtid": "",
+  "id": 2,
+  "isDdl": false,
+  "mysqlType": {
+    "id": "int",
+    "groupName": "varchar(255)",
+    "classId": "int"
+  },
+  "old": [
+    {
+      "classId": "1"
+    }
+  ],
+  "pkNames": [
+    "id"
+  ],
+  "sql": "",
+  "sqlType": {
+    "id": 4,
+    "groupName": 12,
+    "classId": 4
+  },
+  "table": "group",
+  "ts": 1706793723965,
+  "type": "UPDATE"
+}

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.kiroe.mall.order.mapper.OrderInfoMapper">
+    <resultMap id="orderInfoResultMap" type="cn.kiroe.mall.order.dto.OrderInfoDTO">
+        <id property="id" column="id" />
+        <result property="parentOrderId" column="parent_order_id" />
+        <result property="orderStatus" column="order_status" />
+        <result property="userId" column="user_id" />
+        <result property="paymentWay" column="payment_way" />
+        <result property="consignee" column="consignee" />
+        <result property="consigneeTel" column="consignee_tel" />
+        <result property="deliveryAddress" column="delivery_address" />
+        <result property="totalAmount" column="total_amount" />
+        <result property="originalTotalAmount" column="original_total_amount" />
+        <result property="orderComment" column="order_comment" />
+        <result property="outTradeNo" column="out_trade_no" />
+        <result property="tradeBody" column="trade_body" />
+        <result property="orderType" column="order_type" />
+        <result property="trackingNo" column="tracking_no" />
+        <result property="refundableTime" column="refundable_time" />
+        <result property="createTime" column="create_time" />
+        <result property="updateTime" column="update_time" />
+        <result property="expireTime" column="expire_time" />
+        <result property="wareId" column="ware_id" />
+        <result property="orderStatusName" column="order_status_name" />
+
+        <!-- Nested ResultMap for orderDetailList -->
+        <collection property="orderDetailList" ofType="cn.kiroe.mall.order.dto.OrderDetailDTO">
+            <id property="id" column="detail_id" />
+            <result property="orderId" column="order_id" />
+            <result property="skuId" column="sku_id" />
+            <result property="skuName" column="sku_name" />
+            <result property="imgUrl" column="img_url" />
+            <result property="orderPrice" column="order_price" />
+            <result property="skuNum" column="sku_num" />
+            <result property="createTime" column="detail_create_time" />
+            <result property="updateTime" column="detail_update_time" />
+        </collection>
+    </resultMap>
+
+    <select id="selectOrderInfoPageExcludeOrderStatsByUserId" resultMap="orderInfoResultMap">
+        SELECT
+        info.id,
+        info.parent_order_id,
+        info.order_status,
+        info.user_id,
+        info.payment_way,
+        info.consignee,
+        info.consignee_tel,
+        info.delivery_address,
+        info.total_amount,
+        info.original_total_amount,
+        info.order_comment,
+        info.out_trade_no,
+        info.trade_body,
+        info.order_type,
+        info.tracking_no,
+        info.refundable_time,
+        info.create_time,
+        info.update_time,
+        info.expire_time,
+        detail.id AS detail_id, -- Use alias for order_detail.id
+        detail.order_id,
+        detail.sku_id,
+        detail.sku_name,
+        detail.img_url,
+        detail.order_price,
+        detail.sku_num,
+        detail.create_time AS detail_create_time,
+        detail.update_time AS detail_update_time
+        FROM order_info AS info
+        INNER JOIN order_detail AS detail ON info.id = detail.order_id
+        WHERE info.user_id = #{userId}
+        AND info.order_status NOT IN ('SPLIT','STOCK_EXCEPTION')
+    </select>
+    <select id="selectOneById" resultMap="orderInfoResultMap">
+        SELECT
+        info.id,
+        info.parent_order_id,
+        info.order_status,
+        info.user_id,
+        info.payment_way,
+        info.consignee,
+        info.consignee_tel,
+        info.delivery_address,
+        info.total_amount,
+        info.original_total_amount,
+        info.order_comment,
+        info.out_trade_no,
+        info.trade_body,
+        info.order_type,
+        info.tracking_no,
+        info.refundable_time,
+        info.create_time,
+        info.update_time,
+        info.expire_time,
+        detail.id AS detail_id, -- Use alias for order_detail.id
+        detail.order_id,
+        detail.sku_id,
+        detail.sku_name,
+        detail.img_url,
+        detail.order_price,
+        detail.sku_num,
+        detail.create_time AS detail_create_time,
+        detail.update_time AS detail_update_time
+        FROM order_info AS info
+        INNER JOIN order_detail AS detail ON info.id = detail.order_id
+        WHERE info.id = #{id}
+    </select>
+</mapper>

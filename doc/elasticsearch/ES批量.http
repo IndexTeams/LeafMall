@@ -1,0 +1,50 @@
+### 查询mapping
+GET http://jfl.kiroe.cn:9200/teacher/_mapping
+### 删除
+DELETE http://jfl.kiroe.cn:9200/teacher
+### 创建索引
+PUT http://jfl.kiroe.cn:9200/teacher
+Content-Type: application/json
+
+{
+  "mappings": {
+    "properties": {
+      "id": {"type": "integer"},
+      "name": {"type": "text","analyzer": "ik_max_word"},
+      "age": {
+        "type": "integer"
+      }
+    }
+  }
+}
+
+### ES 批量操作
+POST http://jfl.kiroe.cn:9200/_bulk
+Content-Type: application/json
+
+{"create": {"_index": "teacher","_id": 1}}
+{"id":1,"name":"金角大王","age":30}
+{"create": {"_index": "teacher","_id": 2}}
+{"id":2,"name":"银角大王","age":10}
+{"create": {"_index": "teacher","_id": 3}}
+{"id":3,"name":"小钻风","age":20}
+{"delete": {"_index": "teacher","_id": 1}}
+{"update": {"_index": "teacher","_id": 2}}
+{"doc": {"name": "狮驼岭", "age": 1000}}
+
+
+### 创建index
+PUT http://jfl.kiroe.cn:9200/member
+Content-Type: application/json
+
+{
+
+}
+
+### ES 批量操作
+POST http://jfl.kiroe.cn:9200/_bulk
+Content-Type: application/json
+
+
+
+

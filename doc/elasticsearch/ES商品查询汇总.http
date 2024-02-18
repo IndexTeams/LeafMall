@@ -1,0 +1,136 @@
+GET http://jfl.kiroe.cn:9200/my_goods/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "bool": {
+
+      "filter": [
+        {
+          "term": {
+            "thirdLevelCategoryId": "61"
+          }
+        },
+        {
+          "term": {
+            "tmId": 3
+          }
+        },
+		{
+          "nested": {
+            "path": "attrs",
+            "query": {
+              "bool": {
+                "must": [
+                  {
+                    "term": {
+                      "attrs.attrValue": "8G"
+                    }
+                  },
+                  {
+                    "term": {
+                      "attrs.attrId": 23
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "nested": {
+            "path": "attrs",
+            "query": {
+              "bool": {
+                "must": [
+                  {
+                    "term": {
+                      "attrs.attrValue": "6.3-6.59英寸"
+                    }
+                  },
+                  {
+                    "term": {
+                      "attrs.attrId": 112
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "from": 0,
+  "size": 1,
+  "sort": [
+    {
+      "hotScore": {
+        "order": "asc"
+      }
+    }
+  ],
+  "aggs": {
+    "tmIdAgg": {
+      "terms": {
+        "field": "tmId",
+        "size": 10
+      },
+      "aggs": {
+        "tmNameAgg": {
+          "terms": {
+            "field": "tmName",
+            "size": 10
+          }
+        },
+        "tmLogoUrlAgg": {
+          "terms": {
+            "field": "tmLogoUrl",
+            "size": 10
+          }
+        }
+      }
+    },
+    "attrAgg": {
+      "nested": {
+        "path": "attrs"
+      },
+      "aggs": {
+        "attrIdAgg": {
+          "terms": {
+            "field": "attrs.attrId",
+            "size": 10
+          },
+          "aggs": {
+            "attrNameAgg": {
+              "terms": {
+                "field": "attrs.attrName",
+                "size": 10
+              }
+            },
+            "attrValueAgg": {
+              "terms": {
+                "field": "attrs.attrValue",
+                "size": 10
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "highlight": {
+    "fields": {
+      "title": {
+         "pre_tags": "<span style=color:red>",
+         "post_tags": "</span>"
+      }
+    }
+  },
+  "_source": [
+    "id",
+    "defaultImg",
+    "title",
+    "price"
+  ]
+}

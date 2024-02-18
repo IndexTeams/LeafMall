@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 命名空间在 项目中必须是唯一的-->
+<mapper namespace="cn.kiroe.mall.product.mapper.PlatformAttrValueMapper">
+
+
+    <delete id="delByAttrIdNotLogic">
+        delete from mall_product.platform_attr_value
+        where attr_id = #{attrId}
+    </delete>
+</mapper>

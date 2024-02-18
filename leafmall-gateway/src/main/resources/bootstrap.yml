@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: server-gateway
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      config:
+        server-addr: jfl.kiroe.cn:8848
+        file-extension: yaml
+        shared-configs:
+          - data-id: common.yaml
+      discovery:
+        server-addr: jfl.kiroe.cn:8848
+  main:
+    web-application-type: reactive
+
+# profile配置: server-gateway-dev.yaml
+# common配置： common.yaml

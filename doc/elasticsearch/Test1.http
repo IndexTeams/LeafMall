@@ -1,0 +1,230 @@
+# 测试es APi使用
+### 获取当前集群状态
+GET http://jfl.kiroe.cn:9200/_cat/health?v
+
+
+### 查看索引节点列表
+GET http://jfl.kiroe.cn:9200/_cat/nodes?v
+
+### 获取所有索引
+GET http://jfl.kiroe.cn:9200/_cat/indices?v
+
+### 创建名为customer的索引
+PUT http://jfl.kiroe.cn:9200/customer1?pretty
+# 在调用的 末尾附加pretty命令，就可以打印友好JSON响应。
+# {
+#  "acknowledged": true,
+#  "shards_acknowledged": true,
+#  "index": "customer1"
+#}
+### 查看所有索引
+GET http://jfl.kiroe.cn:9200/_cat/indices?v
+
+### 插入doc至索引中
+# _XXX 说明为 需要的指令, _doc为指明操作doc,之后加上1
+PUT http://jfl.kiroe.cn:9200/customer1/_doc/1
+Content-Type: application/json
+
+{
+  "name": "黄杰"
+}
+
+###########
+#{
+#  "_index": "customer1",    索引名
+#  "_id": "1",               docId
+#  "_version": 1,  以便在并发写入操作时检测和解决冲突,实现乐观锁
+#  "result": "created",  显示结果
+#  "_shards": { 的分片的信
+#    "total": 2,
+#    "successful": 1,
+#    "failed": 0
+#  },
+#  "_seq_no": 0, 在分片中的序列号
+#  "_primary_term": 1
+#}
+
+### 删除索引
+DELETE http://jfl.kiroe.cn:9200/customer
+
+### 模式总结
+# <HTTP Verb>/<Index>/<Endpoint>/<ID>
+# "<HTTP Verb>/<Index>/<Endpoint>/<ID>" 是 Elasticsearch 中 RESTful API 的 URL 结构，用于指定对文档的具体操作。
+#
+#<HTTP Verb>：表示 HTTP 请求的动词，例如 GET、POST、PUT、DELETE 等。不同的动词对应不同的操作，如获取文档、创建文档、更新文档和删除文档等。
+#
+#<Index>：表示文档所属的索引名称。索引是 Elasticsearch 中用于组织和存储文档的逻辑容器。通过指定索引名称，可以确定操作要应用于哪个索引。
+#
+#<Endpoint>：表示 Elasticsearch API 的具体端点或操作。它可以是以下一些常见的端点之一：
+#
+#_search：执行搜索操作，用于检索与指定条件匹配的文档。
+#_doc：表示操作单个文档的端点，用于执行与文档相关的操作，如获取、创建、更新和删除文档。
+#_bulk：用于执行批量操作，一次性处理多个文档的索引、更新或删除等操作。
+#<ID>：表示要操作的文档的唯一标识符（Document ID）。每个文档在索引中都有一个唯一的 ID，用于标识和定位文档。通过指定文档的 ID，可以准确地指定要操作的文档。
+
+### 使用put将 覆盖之前的doc
+PUT http://jfl.kiroe.cn:9200/customer1/_doc/2
+Content-Type: application/json
+
+{
+  "name": "123"
+}
+
+### 查看
+GET http://jfl.kiroe.cn:9200/customer1/_doc/JWTEO40ByUIL35n90gHq
+
+### 可使用POST，和put一样的效果
+POST http://jfl.kiroe.cn:9200/customer1/_doc
+Content-Type: application/json
+
+{
+  "new": "这是新的啊"
+}
+
+### 删除doc
+DELETE http://jfl.kiroe.cn:9200/customer1/_doc/2
+
+### 批量处理
+POST http://jfl.kiroe.cn:9200/customer1/_bulk
+Content-Type: application/json
+
+{ "index" : { "_index" : "customer1", "_id" : "1" } }
+{ "field1" : "value1" }
+{ "update" : { "_index" : "customer1", "_id" : "2" } }
+{ "doc" : { "field2" : "value2" } }
+### 末尾必须加 回车，这里不知道怎么加
+
+# 查询接口
+# [endpoint]为 [index]/_search?q=*sort=account_number:asc
+GET http://jfl.kiroe.cn:9200/bank/_search?q=*&sort=account_number:asc
+# {
+#  "took": 32,
+#  "timed_out": false,
+#  "_shards": {
+#    "total": 1,
+#    "successful": 1,
+#    "skipped": 0,
+#    "failed": 0
+#  },
+#  "hits": {
+#    "total": {
+#      "value": 1000,
+#      "relation": "eq"
+#    },
+#    "max_score": null,
+#    "hits": [   # 默认为前十个
+#      {
+#        "_index": "bank",
+#        "_id": "0",
+#        "_score": null,
+#        "_source": {
+#          "account_number": 0,
+#          "balance": 16623,
+#          "firstname": "Bradshaw",
+#          "lastname": "Mckenzie",
+#          "age": 29,
+#          "gender": "F",
+#          "address": "244 Columbus Place",
+#          "employer": "Euron",
+#          "email": "bradshawmckenzie@euron.com",
+#          "city": "Hobucken",
+#          "state": "CO"
+#        },
+#        "sort": [
+#          0
+#        ]
+#      }
+#    ]
+#  }
+#}
+#第2行，took表示Elasticsearch执行搜索所用的时间，单位是 ms。
+#第3行，timed_out用来指示搜索是否超时。
+#第4行，_shards指示搜索了多少分片，以及搜索成功和失败的分 片的计数。
+#第10行，hits用来实际搜索结果集。
+#第11行，hits.total是包含与搜索条件匹配的文档总数信息的对 象。
+#第12行，hits.total.value表示总命中计数的值(必须在 hits.total.relation上下文中解释)。
+#第13行，确切来说，默认情况下，hits.total.value是不确切的 命中计数，在这种情况下，当hits.total.relation的值是eq时， hits.total.value 的 值 是 准 确 计 数 。 当 hits.total.relation 的 值 是 gte 时，hits.total.value的值是不准确的。
+#第16行，hits.hits是存储搜索结果的实际数组(默认为前10个文 档)。
+#第35行，hits.sort表示结果排序键(如果请求中没有指定，则默 认按分数排序)。
+
+### 使用请求体搜索
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {"match_all": {}},
+  "sort": [
+    {"account_number": "asc"}
+  ]
+}
+### 搜索参数
+# query为查询 方式
+# sort 为显示排序的方式，为数组,里面为 {"字段名": "升降序"}
+# size 未指定默认为10
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {"match_all": {}},
+  "size": 1000
+}
+
+### 1. 返回特定字段
+# _source 选择返回字段为 list
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {"match_all": {}},
+  "_source": ["account_number","balance"],
+  "size": 1000
+}
+
+### 2. 匹配查询
+# 在query中 使用match
+# query后为 查询条件
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {"match": {"account_number": 20}}
+}
+
+### 2.1 查询字符串
+# 空格为 or条件
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {"match": {"address": "mill Road"}}
+}
+
+### 3.布尔查询
+# bool must为 和 的意识
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "address": "mill"
+          }
+        },
+        {
+          "match": {
+            "address": "Road"
+          }
+        }
+      ]
+    }
+  }
+}
+
+###
+GET http://jfl.kiroe.cn:9200/goods
+
+
+

@@ -1,0 +1,28 @@
+package cn.kiroe.mall.promo;
+
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
+
+/**
+ * 创建日期: 2023/03/19 15:16
+ *
+ * @author ciggar
+ */
+@SpringBootApplication
+@ComponentScan(basePackages = "cn.kiroe.mall")
+@EnableDiscoveryClient
+@EnableFeignClients(basePackages = "cn.kiroe.mall")
+@MapperScan(basePackages = "cn.kiroe.mall.promo.mapper")
+@EnableScheduling // 开启定时任务功能
+public class ServicePromoApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ServicePromoApplication.class,args);
+    }
+}

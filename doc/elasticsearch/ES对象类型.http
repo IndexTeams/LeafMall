@@ -1,0 +1,158 @@
+### 对象类型介绍
+PUT http://jfl.kiroe.cn:9200/star
+Content-Type: application/json
+
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "integer"
+      },
+      "name": {
+        "type": "keyword"
+      },
+      "fans": {
+        "properties": {
+          "fid": {
+            "type": "integer"
+          },
+          "fname": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  }
+}
+
+###
+POST http://jfl.kiroe.cn:9200/star/_doc/2
+Content-Type: application/json
+
+{
+  "id": [
+    1001,
+    1002
+  ],
+  "name": "汪峰2号",
+  "fans": {
+    "fid": "1001",
+    "fname": "张三"
+  }
+}
+
+###
+GET http://jfl.kiroe.cn:9200/star/_doc/1
+
+###
+GET http://jfl.kiroe.cn:9200/star/_search
+
+### 储存一个文档
+POST http://jfl.kiroe.cn:9200/star/_doc/1
+Content-Type: application/json
+
+{
+  "id": "1",
+  "name": "王菲",
+  "fans": [
+    {
+      "fid": 1001,
+      "fname": "张三"
+    },
+    {
+      "fid": 1002,
+      "fname": "fsdf"
+    }
+  ]
+}
+
+### 查询 fid=1001,fname="张三
+GET http://jfl.kiroe.cn:9200/star/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "fans.fid": {
+              "value": "1001"
+            }
+          }
+        },
+        {
+          "term": {
+            "fans.fname": {
+              "value": "fsdf"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
+### es默认为扁平化存储对象，即分别使用数组储存时间,会导致对象属性的单独匹配，不是匹配单个对象
+### 使用Nested类型
+PUT http://jfl.kiroe.cn:9200/star1
+Content-Type: application/json
+
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "integer"
+      },
+      "name": {
+        "type": "keyword"
+      },
+      "fans": {
+        "type": "nested",
+        "properties": {
+          "fid": {
+            "type": "integer"
+          },
+          "fname": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  }
+}
+### 查询nested
+
+### 使用nested类型来定义对象，可以在查询对象的时候避免出现跨对象匹配的情况
+# 为什么呢？因为使用了Nested类型后，数据的储存结果发生了变化
+### 查询 fid=1001,fname="张三
+GET http://jfl.kiroe.cn:9200/star1/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "nested": {
+      "path": "fans",
+      "query": {
+        "bool": {
+          "must": [
+            {
+              "term": {
+                "fans.fid": {
+                  "value": "1001"
+                }
+              }
+            },
+            {
+              "term": {
+                "fans.fname": {
+                  "value": "fsdf"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

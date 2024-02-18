@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 命名空间在 项目中必须是唯一的-->
+<mapper namespace="cn.kiroe.mall.product.mapper.FirstLevelCategoryMapper">
+
+    <resultMap id="NodeResultMap" type="cn.kiroe.mall.product.dto.FirstLevelCategoryNodeDTO">
+        <id property="categoryId" column="first_id"/>
+        <result property="categoryName" column="first_name"/>
+        <collection property="categoryChild" ofType="cn.kiroe.mall.product.dto.SecondLevelCategoryNodeDTO" column="second_fId">
+            <id property="categoryId" column="second_id"/>
+            <result property="categoryName" column="second_name"/>
+            <collection property="categoryChild" ofType="cn.kiroe.mall.product.dto.ThirdLevelCategoryNodeDTO" column="third_sId">
+                <id property="categoryId" column="third_id"/>
+                <result property="categoryName" column="third_name"/>
+            </collection>
+        </collection>
+
+    </resultMap>
+
+    <select id="selectAllNodeDTO" resultMap="NodeResultMap">
+        select first.id                       as first_id,
+               first.name                     as first_name,
+               second.id                      as second_id,
+               second.name                    as second_name,
+               second.first_level_category_id as second_fId,
+               third.id                       as third_id,
+               third.name                     as third_name,
+               third.second_level_category_id as third_sId
+        from first_level_category as first
+                 left join second_level_category as second
+                           on first.id = second.first_level_category_id and first.is_deleted = 0 and
+                              second.is_deleted = 0
+                 left join third_level_category as third
+                           on second.id = third.second_level_category_id and third.is_deleted = 0
+        where first.is_deleted = 0
+    </select>
+</mapper>

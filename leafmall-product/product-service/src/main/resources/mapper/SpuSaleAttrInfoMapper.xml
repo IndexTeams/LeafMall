@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 命名空间在 项目中必须是唯一的-->
+<mapper namespace="cn.kiroe.mall.product.mapper.SpuSaleAttrInfoMapper">
+    <resultMap id="SpuSaleAttributeInfoMap" type="cn.kiroe.mall.product.model.SpuSaleAttributeInfo">
+        <!-- Primary Key -->
+        <id property="id" column="id"/>
+
+        <!-- Other columns from SpuSaleAttributeInfo -->
+        <result property="spuId" column="spu_id"/>
+        <result property="saleAttrId" column="sale_attr_id"/>
+        <result property="saleAttrName" column="sale_attr_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="isDeleted" column="is_deleted"/>
+
+        <!-- Association with SpuSaleAttributeValue -->
+        <collection  property="spuSaleAttrValueList" ofType="cn.kiroe.mall.product.model.SpuSaleAttributeValue">
+            <id property="id" column="vId"/>
+            <result property="spuId" column="vSpuId"/>
+            <result property="spuSaleAttrId" column="vSsaid"/>
+            <result property="spuSaleAttrValueName" column="vSsavName"/>
+            <result property="createTime" column="vCtime"/>
+            <result property="updateTime" column="vUTime"/>
+            <result property="isDeleted" column="vIsDeleted"/>
+        </collection>
+
+    </resultMap>
+    <!--联表查询 获取info和value -->
+    <select id="selectAllBySpuId" resultMap="SpuSaleAttributeInfoMap">
+        select info.id,
+               info.spu_id,
+               info.sale_attr_id,
+               info.sale_attr_name,
+               info.create_time,
+               info.update_time,
+               info.is_deleted,
+               val.id as vId,
+               val.spu_id as vSpuId,
+               val.spu_sale_attr_id as vSsaid,
+               val.spu_sale_attr_value_name as vSsavName,
+               val.create_time as vCtime,
+               val.update_time as vUTime,
+               val.is_deleted as vIsDeleted
+        from spu_sale_attr_info as info
+                 inner join spu_sale_attr_value as val
+                            on info.spu_id = #{spuId} and val.spu_sale_attr_id = info.id
+        where val.is_deleted = 0 and info.is_deleted = 0;
+    </select>
+    <resultMap id="saleAttrMap" type="cn.kiroe.mall.product.model.SpuSaleAttributeInfo">
+        <id column="id" property="id"/>
+        <result column="spu_id" property="spuId"/>
+        <result column="sale_attr_id" property="saleAttrId"/>
+        <result column="sale_attr_name" property="saleAttrName"/>
+        <collection property="spuSaleAttrValueList" ofType="cn.kiroe.mall.product.model.SpuSaleAttributeValue" >
+            <id column="val_id" property="id"/>
+            <result column="val_spu_id" property="spuId"/>
+            <result column="val_spu_sale_attr_id" property="spuSaleAttrId"/>
+            <result column="val_spu_sale_attr_value_name" property="spuSaleAttrValueName"/>
+            <result column="is_checked" property="isChecked"/>
+        </collection>
+    </resultMap>
+    <!--
+             // 4. 查询sku所属的spu的所有的销售属性以及各个对应的值，
+             以及当前sku相中的销售属性
+
+     -->
+    <select id="selectSpuSaleAttrListCheckedBySku"
+            resultMap="saleAttrMap">
+        select info.id,
+               info.spu_id,
+               info.sale_attr_id,
+               info.sale_attr_name,
+               val.id                         as val_id,
+               val.spu_id                     as val_spu_id,
+               val.spu_sale_attr_id           as val_spu_sale_attr_id,
+               val.spu_sale_attr_value_name   as val_spu_sale_attr_value_name,
+               if(sku_value.id is null, 0, 1) as is_checked
+        from spu_sale_attr_info as info
+                 inner join spu_sale_attr_value as val
+                            on info.spu_id = #{spuId} and info.id = val.spu_sale_attr_id and info.is_deleted = 0 and
+                               val.is_deleted = 0
+                 left join sku_sale_attr_value as sku_value
+                           on sku_value.spu_id = #{spuId}  and
+                              sku_value.sku_id = #{skuId} and
+                              val.id = sku_value.spu_sale_attr_value_id and
+                              sku_value.is_deleted = 0
+        where info.spu_id = #{spuId}
+        order by info.sale_attr_id, val.id, sku_value.id;
+    </select>
+</mapper>

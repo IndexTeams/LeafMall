@@ -1,0 +1,5 @@
+### 用于获取集群的信息,使用_cat 查看子目录,查看当前有哪些参数
+# 会显示当前的每行的意思
+GET http://jfl.kiroe.cn:9200/_cat/master?v&help
+
+

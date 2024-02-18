@@ -1,0 +1,142 @@
+### 全部查询
+POST http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match_all": {}
+  },
+  "from": 0,
+  "size": 10
+}
+
+#### 2.term查询，词条查询
+# 不会对搜索的中keyword类型进行分词
+# 如果字段设置了 分词，会匹配分词text,设置_anaylze
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "term": {
+      "address": {
+        "value": "741"
+      }
+    }
+  }
+}
+
+### 全文查询 - match
+# 那搜索关键词结果 和木匾字段进行匹配
+# 会对搜索关键字进行分词
+# 如果目标字段能分词(keyword),会拿 搜搜关键词的分词结果 与之匹配
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "address": {
+        "query": "Road",
+        "operator": "and"
+      }
+    }
+  }
+}
+
+### 模糊查询
+# wildcard查询：会对查询条件进行分词。还可以使用通配符 ?（任意单个字符） 和  * （0个或多个字符）
+# 会拿搜索的关键字(包含通配符) 和目标字段的分词结果进行匹配
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "wildcard": {
+      "address": {
+        "value": "*87?"
+      }
+
+    }
+  }
+}
+
+###
+GET http://jfl.kiroe.cn:9200/bank/_mapping
+
+###
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "wildcard": {
+      "address": "8*"
+    }
+  }
+}
+### 前缀查询
+#  不太适用于 text字段上
+# 使用与 keyword字段
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "prefix": {
+      "address": {
+        "value": "875"
+      }
+    }
+  }
+}
+
+### queryString 多条件查询
+# (address = v1 or firstname = v1) and (address = v2 and firstname = v2)
+# AND 或者 OR 需要大写
+# 使用simple_query-string 不会是识别AND OR关键字
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "query_string": {
+      "fields": ["address","firstname"],
+      "query": "875 OR Randolph"
+
+    }
+  }
+}
+
+### 排序查询
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match_all": {}
+  },
+  "sort": [
+    {
+      "balance": {
+        "order": "asc"
+      }
+    }
+  ]
+}
+
+### 范围查询
+# 查询money 在 300-600之间的成员
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "range": {
+      "balance": {
+        "gte": 1000,
+        "lte": 1500
+      }
+    }
+  }
+}

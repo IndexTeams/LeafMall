@@ -1,0 +1,239 @@
+GET http://jfl.kiroe.cn:9200/member
+
+###
+DELETE http://jfl.kiroe.cn:9200/member
+
+### 插入数据
+PUT http://jfl.kiroe.cn:9200/member
+
+### 设置mapping
+POST http://jfl.kiroe.cn:9200/member/_mapping
+Content-Type: application/json
+
+{
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "name": {
+      "type": "keyword"
+    },
+    "addr": {
+      "type": "text",
+      "analyzer": "ik_max_word"
+    },
+    "gender": {
+      "type": "keyword"
+    },
+    "money": {
+      "type": "long"
+    }
+  }
+}
+
+####复合查询
+### 布尔查询
+#must
+
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "address": "mill lane"
+    }
+  }
+}
+
+### 查询有当前词
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match_phrase":{
+      "address": "mill lane"
+    }
+  }
+}
+
+### 多条件查询
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "address": "mill lane"
+          }
+        },
+        {
+          "match": {
+            "address": "198"
+          }
+        }
+      ],
+      "must_not": {
+        "match": {
+          "address": "198"
+        }
+      }
+    }
+  }
+}
+
+### 综合练习
+# 查询money ,gender,address
+# addres 需要分数
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "match": {
+            "address": "mill"
+          }
+        }
+      ],
+      "must": [
+        {
+          "match": {
+            "gender": "M"
+          }
+        },
+        {
+          "range": {
+            "balance": {
+              "gte": 9800,
+              "lte": 9813
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
+### 求索引member的money总和,指标聚合
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "match": {
+            "address": "mill"
+          }
+        },
+        {
+          "match": {
+            "gender": "M"
+          }
+        }
+      ]
+    }
+  },
+  "aggs": {
+    "sum_balance": {
+      "sum": {
+        "field": "balance"
+      }
+    },
+    "avg_b": {
+      "avg": {
+        "field": "balance"
+      }
+    },
+    "min_b": {
+      "min": {
+        "field": "balance"
+      }
+    },
+    "max_b": {
+      "max": {
+        "field": "balance"
+      }
+    }
+  }
+}
+### mapping
+GET http://jfl.kiroe.cn:9200/bank/_mapping
+### 桶聚合
+# 其实就是对搜索出来的 结果文档进行按照某一个字段分桶
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match_all": {}
+  },
+  "aggs": {
+    "gender_bucketfff": {
+      "terms": {
+        "field": "age"
+      }
+    }
+  }
+}
+### 需要注意
+# 1. 桶聚合 聚合的字段不能是text字段(text不能桶聚合和排序)
+# 2. 桶聚合是支持嵌套的
+# 对结果进行分桶，还能嵌套继续分桶
+# 也可以对子桶的文档，按照字段继续分
+### 嵌套分桶
+POST http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match_all": {}
+  },
+  "aggs": {
+    "age_bucket": {
+      "terms": {
+        "field": "age"
+      },
+      "aggs": {
+        "balance_bucket": {
+          "terms": {
+            "field": "balance"
+          }
+        }
+      }
+    }
+  }
+}
+
+### 高亮查询
+#  "highlight": {
+#          "address": [  当长度过长会分段，所以使用数组
+#            "246 Beverly <font color=red>Road</font>"
+#          ]
+#        }
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "address": "road"
+    }
+  },
+  "highlight": {
+    "fields": {
+      "address": {
+        "pre_tags": "<font color=red>",
+        "post_tags": "</font>"
+      }
+    }
+  }
+}

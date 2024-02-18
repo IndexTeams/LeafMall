@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 命名空间在 项目中必须是唯一的-->
+<mapper namespace="cn.kiroe.mall.product.mapper.PlatformAttrInfoMapper">
+    <!--autoMapping="true" -->
+    <resultMap id="platformAttrMap" type="cn.kiroe.mall.product.model.PlatformAttributeInfo" >
+        <id column="id" property="id"/>
+        <result column="attr_name" property="attrName"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="category_level" property="categoryLevel"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="is_deleted" property="isDeleted"/>
+        <collection property="attrValueList" ofType="cn.kiroe.mall.product.model.PlatformAttributeValue">
+            <id column="vid" property="id"/>
+            <result column="value_name" property="valueName"/>
+            <result column="attr_id" property="attrId"/>
+            <result column="vcreateTime" property="createTime"/>
+            <result column="vupdateTime" property="updateTime"/>
+            <result column="visDeleted" property="isDeleted"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectPlatFormAttrInfoList" resultMap="platformAttrMap">
+        select a.id
+        , a.attr_name
+        , a.category_id
+        , a.category_level
+        , a.create_time
+        , a.update_time
+        , a.is_deleted
+        , b.id as vid
+        , b.value_name as value_name
+        , b.attr_id as attr_id
+        , b.create_time as vcreateTime
+        , b.update_time as vupdateTime
+        , b.is_deleted as visDeleted
+        from platform_attr_info as a
+        left join platform_attr_value as b
+        on b.attr_id = a.id and a.is_deleted = 0 and b.is_deleted = 0
+        <where>
+            <if test="firstLevelCategoryId != null and firstLevelCategoryId != 0">
+                (a.category_id = 2 and a.category_level = 1)
+            </if>
+            <if test="secondLevelCategoryId != null and secondLevelCategoryId != 0">
+                or (a.category_id = #{secondLevelCategoryId} and a.category_level = 2)
+            </if>
+            <if test="thirdLevelCategoryId != null and thirdLevelCategoryId != 0">
+                or (a.category_id = #{thirdLevelCategoryId} and a.category_level = 3)
+            </if>
+                and a.is_deleted = 0
+        </where>
+
+    </select>
+</mapper>

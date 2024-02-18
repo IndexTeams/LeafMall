@@ -1,0 +1,170 @@
+### 添加索引
+PUT http://jfl.kiroe.cn:9200/test2
+### 查询单个索引
+GET http://jfl.kiroe.cn:9200/bank
+### 多个索引
+GET http://jfl.kiroe.cn:9200/test2,bank
+### 查询索引索引
+GET http://jfl.kiroe.cn:9200/_all
+### 删除指定的索引
+DELETE http://jfl.kiroe.cn:9200/test2
+### 修改索引，关闭索引
+# 关闭后将无法 _search
+POST http://jfl.kiroe.cn:9200/bank/_close
+### 打开索引
+POST http://jfl.kiroe.cn:9200/bank/_open
+### 查询索引文档
+# close将无法查询
+GET http://jfl.kiroe.cn:9200/bank/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+### 映射的操作
+PUT http://jfl.kiroe.cn:9200/user
+###
+GET http://jfl.kiroe.cn:9200/teacher
+### 给已经存在的映射添加
+PUT http://jfl.kiroe.cn:9200/user/_mapping
+Content-Type: application/json
+
+{
+  "properties": {
+    "id": {"type": "integer"},
+    "name": {"type": "keyword"},
+    "age": {"type": "long"}
+  }
+
+}
+### 创建索引，并指定映射
+PUT http://jfl.kiroe.cn:9200/teacher
+Content-Type: application/json
+
+{
+  "mappings": {
+    "properties": {
+      "tid": {"type": "integer"},
+      "tname": {"type": "text"}
+    }
+  }
+
+}
+### 查询映射
+GET http://jfl.kiroe.cn:9200/teacher/_mapping
+### 修改映射(只能添加字段)
+POST http://jfl.kiroe.cn:9200/teacher/_mapping
+Content-Type: application/json
+
+{
+  "properties": {
+    "high": {
+      "type": "float"
+    },
+    "weight": {
+      "type": "double"
+    }
+  }
+}
+### 删除映射(不能单独删除索引的映射，只能删除索引),
+# 下面的会报405
+DELETE http://jfl.kiroe.cn:9200/teacher/_mapping
+
+### 文档的操作
+GET http://jfl.kiroe.cn:9200/user
+### 添加文档-指定文档id
+POST http://jfl.kiroe.cn:9200/user/_doc/3
+Content-Type: application/json
+
+{
+  "id": 1001,
+  "name": "几百元",
+  "age": 15
+}
+### 添加文档-不指定文档id
+POST http://jfl.kiroe.cn:9200/user/_doc
+Content-Type: application/json
+
+{
+  "id": 1002,
+  "name": "近义词"
+}
+### 查询文档-工具文档id查询文档
+GET http://jfl.kiroe.cn:9200/user/_doc/1
+### 查询2
+GET http://jfl.kiroe.cn:9200/user/_doc/KWeRPo0ByUIL35n9pVcL
+### 查询文档-GET
+GET http://jfl.kiroe.cn:9200/user/_search
+### 查询文档-查询所有的文档-POST
+POST http://jfl.kiroe.cn:9200/user/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match_all": {}
+  }
+}
+### 修改文档 -- 直接覆盖
+POST  http://jfl.kiroe.cn:9200/user/_doc/1
+Content-Type: application/json
+
+{
+  "id": 2001,
+  "name": "六七千"
+}
+### 修改文档 -- 修改指定的字段
+POST http://jfl.kiroe.cn:9200/user/_update/1
+Content-Type: application/json
+
+{
+  "doc": {
+    "name": "维修费"
+  }
+}
+### 删除文档(指定文档id)
+DELETE http://jfl.kiroe.cn:9200/user/_doc/1
+
+
+### ik分词器测试
+# ik_max_word 是最细力度的分词
+GET http://jfl.kiroe.cn:9200/_analyze
+Content-Type: application/json
+
+{
+  "text": "湖南是全国唯一一个叫湖南的省份",
+  "analyzer": "ik_max_word"
+}
+
+### ik_smart 分词，是一个粒度更粗的分词模式
+GET http://jfl.kiroe.cn:9200/_analyze
+Content-Type: application/json
+
+{
+  "text": "湖南是全国唯一一个叫湖南的省份",
+  "analyzer": "ik_smart"
+}
+
+#### 使用ES自带的分词器,每次次拆分
+GET http://jfl.kiroe.cn:9200/_analyze
+Content-Type: application/json
+
+{
+  "text": "湖南是全国唯一一个叫湖南的省份",
+  "analyzer": "standard"
+}
+
+### 测试英文拆分
+GET http://jfl.kiroe.cn:9200/_analyze
+Content-Type: application/json
+
+{
+  "text": "stone is best man, ciggar is handsome man",
+  "analyzer": "standard"
+}
+
+###
+GET http://jfl.kiroe.cn:9200/_cat/indices?v
+

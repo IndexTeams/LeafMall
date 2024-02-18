@@ -1,0 +1,232 @@
+# 查询
+### 更具关键字查询
+# 应该放在bool must部分
+GET http://jfl.kiroe.cn:9200/my_goods/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "bool": {
+      "must": {
+        "match": {
+          "title": {
+            "query": "荣耀手机",
+            "operator": "or"
+          }
+        }
+      }
+    }
+  }
+}
+
+### 更具分类查询
+# 放在bool查询的filter部分
+GET http://jfl.kiroe.cn:9200/my_goods/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "bool": {
+      "filter": {
+        "term": {
+          "thirdLevelCategoryId": "61"
+        }
+      }
+    }
+  }
+}
+### 更具品牌查询
+GET http://jfl.kiroe.cn:9200/my_goods/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "term": {
+            "tmName": "小米"
+          }
+        }
+      ]
+    }
+  }
+}
+###
+GET http://jfl.kiroe.cn:9200/my_goods/_mapping
+###
+GET http://jfl.kiroe.cn:9200/bank/_mapping
+### 更具平台属性
+# 查询机身内存为256G的 attrName = 机身内存 attrValue=256G
+GET http://jfl.kiroe.cn:9200/my_goods/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "nested": {
+            "path": "attrs",
+            "query": {
+              "bool": {
+                "filter": [
+                  {
+                    "term": {
+                      "attrs.attrName": "机身内存"
+                    }
+                  },
+                  {
+                    "term": {
+                      "attrs.attrValue": "256G"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+### 高亮
+GET http://jfl.kiroe.cn:9200/my_goods/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "bool": {
+      "must": {
+        "match": {
+          "title": {
+            "query": "荣耀手机",
+            "operator": "or"
+          }
+        }
+      }
+    }
+  },
+  "highlight": {
+    "fields": {
+      "title": {
+        "pre_tags": "<span style=color:red>",
+        "post_tags": "</span>"
+      }
+    }
+  },
+  "from": 0,
+  "size": 4,
+  "sort": [
+    {
+      "price": {
+        "order": "desc"
+      }
+    }
+  ]
+}
+### 分页
+### 排序
+### 聚合
+### 品牌聚合
+# 希望得到查询的结果中的所有的品牌
+GET http://jfl.kiroe.cn:9200/my_goods/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match_all": {}
+  },
+  "aggs": {
+    "tmIdBucket": {
+      "terms": {
+        "field": "tmId"
+      },
+      "aggs": {
+        "tmNameAgg": {
+          "terms": {
+            "field": "tmName"
+          }
+        },
+        "tmUrlAgg": {
+          "terms": {
+            "field": "tmLogoUrl"
+          }
+        }
+      }
+    }
+  }
+}
+
+### 聚合平台属性
+# 聚合出平台属性和平台属性的值,获取 搜索条件所有的平台属性
+# 因为平台属性是Nested类型的
+# 使用Nested查询,聚合的时候也要使用
+GET http://jfl.kiroe.cn:9200/my_goods/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match_all": {}
+  },
+  "aggs": {
+    "attrAgg": {
+      "nested": {
+        "path": "attrs"
+      },
+      "aggs": {
+        "attrIdAggs": {
+          "terms": {
+            "field": "attrs.attrId"
+          },
+          "aggs": {
+            "attrNameAgg": {
+              "terms": {
+                "field": "attrs.attrName"
+              }
+            },
+            "attrValue": {
+              "terms": {
+                "field": "attrs.attrValue"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+### 指定查询结果中的字段
+# 在_source中 指定字段即可
+GET http://jfl.kiroe.cn:9200/my_goods/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match_all": {}
+  },
+  "_source": [
+    "id",
+    "defaultImg",
+    "title",
+    "price"
+  ]
+}
+
+### 选择结果中的字段
+GET http://jfl.kiroe.cn:9200/my_goods/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match_all": {}
+  },
+  "_source": {
+    "includes": ["id","tmName"],
+    "excludes": ["id"]
+  }
+}
+
+### 将上面的查询进行整合
+GET http://jfl.kiroe.cn:9200/my_goods/_search

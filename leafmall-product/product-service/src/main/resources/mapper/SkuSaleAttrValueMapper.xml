@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 命名空间在 项目中必须是唯一的-->
+<mapper namespace="cn.kiroe.mall.product.mapper.SkuSaleAttrValueMapper">
+
+
+    <select id="selectSaleAttrValuesBySpu"
+            resultType="cn.kiroe.mall.product.model.SkuSaleAttributeValuePermutation">
+        select GROUP_CONCAT(val.spu_sale_attr_value_id order by attr_info.sale_attr_id separator '|') as SkuSaleAttrValuePermutation, sku_id as skuId
+        from sku_sale_attr_value as val
+                 inner join sku_info
+                            on sku_info.id = val.sku_id and sku_info.is_deleted = 0 and sku_info.is_sale = 1
+                 inner join spu_sale_attr_value as attr_value
+                            on val.spu_sale_attr_value_id = attr_value.id and attr_value.is_deleted = 0
+                 inner join spu_sale_attr_info as attr_info
+                            on attr_info.id = attr_value.spu_sale_attr_id and attr_info.is_deleted = 0
+        where val.spu_id = #{spuId}
+        group by val.sku_id;
+    </select>
+</mapper>

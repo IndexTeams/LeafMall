@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: test-demo
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      config:
+        server-addr: jfl.kiroe.cn:8848
+        file-extension: yaml
+        shared-configs:
+          - data-id: common.yaml
+      discovery:
+        server-addr: jfl.kiroe.cn:8848
+# profile 配置：test-demo-dev.yaml
+# common 配置： common.yaml
